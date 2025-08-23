@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Our Podcast: Social Linguistics & Directed Writing | EnghBlog</title>
+    <meta name="description" content="Explore social linguistics and directed writing tips from our latest podcast episode.">
+    <!-- 保持与首页一致的资源引用 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        primary: {
+                            dark: "#1a1a1a",
+                            light: "#f8fafc"
+                        },
+                        accent: "#f97316",
+                        secondary: "#334155"
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        mono: ['Fira Code', 'monospace']
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Fira+Code:wght@400;500&display=swap');
+        
+        body {
+            background-color: #000; /* 设置黑色背景 */
+            
+            transition: background-color 0.3s ease;
+    }
+        }
+        
+        .gradient-text {
+            background-clip: text;
+            -webkit-background-clip: text;
+            color: transparent;
+            background-image: linear-gradient(90deg, #f97316, #f59e0b);
+        }
+        
+        /* 文章页专属样式 */
+        .article-content p {
+            margin-bottom: 1.5rem;
+            line-height: 1.8;
+        }
+        .article-content h2 {
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin: 2.5rem 0 1.2rem;
+            color: #f8fafc;
+        }
+        .article-content h3 {
+            font-size: 1.4rem;
+            font-weight: 600;
+            margin: 2rem 0 1rem;
+            color: #f1f5f9;
+        }
+        .article-quote {
+            border-left: 4px solid #f97316;
+            padding-left: 1.5rem;
+            margin: 2rem 0;
+            font-style: italic;
+            color: #cbd5e1;
+        }
+        .podcast-player {
+            background-color: #273444;
+            padding: 1.5rem;
+            border-radius: 0.75rem;
+            margin: 2rem 0;
+        }
+        .writing-tips-list {
+            list-style-type: disc;
+            padding-left: 2rem;
+            margin: 1rem 0 1.5rem;
+        }
+        .writing-tips-list li {
+            margin-bottom: 0.8rem;
+            color: #e2e8f0;
+        }
+    </style>
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .content-auto {
+                content-visibility: auto;
+            }
+        }
+    </style>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-primary-dark text-gray-200 font-sans min-h-screen flex flex-col">
+    <!-- 导航栏（修复了响应式问题） -->
+    <header class="bg-secondary sticky top-0 z-50 shadow-lg transition-all duration-300">
+        <div class="container mx-auto px-4 py-4">
+            <div class="flex justify-between items-center">
+                <div class="flex items-center space-x-2">
+                    <a href="Engblogindex.html" class="text-2xl font-bold gradient-text">EnghBlog</a>
+                </div>
+                
+                <!-- Mobile menu button - 仅在小屏幕显示 -->
+                <button id="mobile-menu-button" class="md:hidden text-gray-300 hover:text-accent focus:outline-none transition">
+                    <i class="fas fa-bars text-xl"></i>
+                </button>
+                
+                <!-- Desktop Navigation - 仅在中等及以上屏幕显示 -->
+                <nav class="hidden md:flex space-x-8">
+                    <a href="Engblogindex.html" class="text-gray-300 hover:text-accent font-medium transition">Home</a>
+                    <a href="Engblogindex.html#latest-posts" class="text-gray-300 hover:text-accent font-medium transition">Articles</a>
+                    <a href="#" class="text-gray-300 hover:text-accent font-medium transition">Projects</a>
+                    <a href="#" class="text-gray-300 hover:text-accent font-medium transition">About</a>
+                    <a href="#" class="text-gray-300 hover:text-accent font-medium transition">Contact</a>
+                </nav>
+            </div>
+            
+            <!-- Mobile Navigation - 初始隐藏，点击按钮后显示 -->
+            <div id="mobile-menu" class="hidden md:hidden mt-4 pb-2 transition-all duration-300 ease-in-out">
+                <a href="Engblogindex.html" class="block py-2 text-gray-300 hover:text-accent transition">Home</a>
+                <a href="Engblogindex.html#latest-posts" class="block py-2 text-gray-300 hover:text-accent transition">Articles</a>
+                <a href="#" class="block py-2 text-gray-300 hover:text-accent transition">Projects</a>
+                <a href="#" class="block py-2 text-gray-300 hover:text-accent transition">About</a>
+                <a href="#" class="block py-2 text-gray-300 hover:text-accent transition">Contact</a>
+            </div>
+        </div>
+    </header>
+
+    <!-- 文章主体内容 -->
+    <main class="flex-grow container mx-auto px-4 py-8 max-w-3xl">
+        <!-- 文章头部信息 -->
+        <section class="mb-10 text-left">
+            <!-- 文章分类标签 -->
+            <div class="mb-4">
+                <a href="#" class="inline-block px-3 py-1 bg-accent/20 text-accent rounded-full text-sm font-medium hover:bg-accent/30 transition">
+                    Podcast Recap
+                </a>
+                <a href="#" class="inline-block px-3 py-1 bg-secondary text-gray-300 rounded-full text-sm font-medium ml-2 hover:bg-secondary/80 transition">
+                    Social Linguistics
+                </a>
+            </div>
+            
+            <!-- 文章标题 -->
+            <h1 class="text-4xl md:text-5xl font-bold mb-6 text-white">Our Podcast: Social Linguistics & Directed Writing</h1>
+            
+            
+            
+            <!-- 文章封面图 -->
+            <div class="rounded-lg overflow-hidden mb-8">
+                <img src="./Engblogindex_files/maxresdefault.jpg" alt="Podcast cover: Social Linguistics" class="w-full h-64 object-cover">
+            </div>
+        </section>
+
+        <!-- 文章内容区域 -->
+        <section class="article-content mb-12">
+            <p>
+                In our latest podcast episode, we explored two fascinating topics that are essential for English learners and language enthusiasts alike: <strong>social linguistics</strong> and <strong>directed writing</strong>.
+            </p>
+
+            <h2>What is Social Linguistics?</h2>
+            <p>
+                Social linguistics is the study of how language varies based on social factors like age, gender, class, and cultural background. Dr. Hale explained that language isn't just a tool for communication—it's also a marker of identity and belonging.
+            </p>
+            
+            <div class="article-quote">
+                "Every time we speak, we're not just sharing information—we're signaling who we are and which groups we identify with. The way you say 'hello' to a friend vs. a colleague, or the slang you use with peers vs. formal language in a job interview—these are all examples of social linguistics in action."
+                <br><br>
+                — Dr. Marcus Hale, Stanford University
+            </div>
+            
+            <p>
+                We discussed real-world examples, such as how workplace communication differs across cultures. For instance, direct communication is valued in Western workplaces, while indirect communication (to avoid conflict) is more common in Eastern cultures. Understanding these differences can help avoid misunderstandings in global teams.
+            </p>
+
+            
+            
+            
+
+            <h2>Directed Writing: Tips from the Podcast</h2>
+            <p>
+                The second half of the podcast focused on directed writing—structured writing tasks that require you to follow specific guidelines (e.g., writing a letter, report, or speech). Dr. Hale shared practical tips to excel at these tasks, which are common in exams like IELTS, TOEFL, and academic assessments.
+            </p>
+            
+            <h3>Key Tips for Directed Writing</h3>
+            <ul class="writing-tips-list">
+                <li><strong>Analyze the task first:</strong> Identify the purpose (e.g., to persuade, inform, or request), target audience, and required format (e.g., formal letter, email).</li>
+                <li><strong>Plan before writing:</strong> Spend 5-10 minutes outlining your main points—this ensures your writing stays focused and logical.</li>
+                <li><strong>Match tone to purpose:</strong> Use formal language for academic reports or business letters, and casual language only if the task specifies (e.g., a letter to a friend).</li>
+                <li><strong>Include all required elements:</strong> If the task asks for three specific points, make sure you address all of them—missing elements lead to lower scores.</li>
+                <li><strong>Edit for clarity:</strong> After writing, check for grammar errors, awkward sentences, and whether your message is clear to the target audience.</li>
+            </ul>
+            
+            <p>
+                We also worked through a sample task: writing a formal email to a university professor requesting an extension on an assignment. We demonstrated how to structure the email, use appropriate tone, and clearly state the request with a valid reason—without being overly casual or demanding. We hope these stuff are useful for those G2 students.
+            </p>
+
+            
+
+        
+            <!-- 分享按钮 -->
+            <div>
+                <h3 class="text-lg font-medium mb-3 text-gray-300">Share This Article</h3>
+                <div class="flex space-x-4">
+                    <a href="#" class="w-10 h-10 rounded-full bg-secondary flex items-center justify-center text-gray-300 hover:bg-accent hover:text-white transition">
+                        <i class="fab fa-twitter"></i>
+                    </a>
+                    <a href="#" class="w-10 h-10 rounded-full bg-secondary flex items-center justify-center text-gray-300 hover:bg-accent hover:text-white transition">
+                        <i class="fab fa-facebook"></i>
+                    </a>
+                    <a href="#" class="w-10 h-10 rounded-full bg-secondary flex items-center justify-center text-gray-300 hover:bg-accent hover:text-white transition">
+                        <i class="fab fa-linkedin"></i>
+                    </a>
+                    <a href="#" class="w-10 h-10 rounded-full bg-secondary flex items-center justify-center text-gray-300 hover:bg-accent hover:text-white transition">
+                        <i class="fas fa-envelope"></i>
+                    </a>
+                </div>
+            </div>
+        </section>
+
+        <!-- 作者信息 -->
+
+
+        
+    <!-- 页脚 -->
+    <footer class="bg-secondary py-12">
+        <div class="container mx-auto px-4">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+                <div>
+                    <div class="flex items-center space-x-2 mb-4">
+                        <span class="text-xl font-bold gradient-text">EnghBlog</span>
+                    </div>
+                    <p class="text-gray-400">
+                        A personal blog focused on English language learning, linguistics, and writing skills.
+                    </p>
+                </div>
+                
+                <div>
+                    <h3 class="text-lg font-bold mb-4 text-gray-300">Quick Links</h3>
+                    <ul class="space-y-2">
+                        <li><a href="Engblogindex.html" class="text-gray-400 hover:text-accent transition">Home</a></li>
+                        <li><a href="Engblogindex.html#latest-posts" class="text-gray-400 hover:text-accent transition">Articles</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-accent transition">Projects</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-accent transition">About</a></li>
+                    </ul>
+                </div>
+                
+                <div>
+                    <h3 class="text-lg font-bold mb-4 text-gray-300">Categories</h3>
+                    <ul class="space-y-2">
+                        <li><a href="#" class="text-gray-400 hover:text-accent transition">Linguistics</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-accent transition">Academic Writing</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-accent transition">Podcasts</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-accent transition">IELTS Preparation</a></li>
+                    </ul>
+                </div>
+                
+                <div>
+                    <h3 class="text-lg font-bold mb-4 text-gray-300">Connect With Us</h3>
+                    <ul class="space-y-2">
+                        <li><a href="#" class="text-gray-400 hover:text-accent transition"><i class="fab fa-twitter mr-2"></i> Twitter</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-accent transition"><i class="fab fa-facebook mr-2"></i> Facebook</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-accent transition"><i class="fab fa-instagram mr-2"></i> Instagram</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-accent transition"><i class="fab fa-youtube mr-2"></i> YouTube</a></li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="border-t border-gray-700 mt-10 pt-6 text-center text-gray-500 text-sm">
+                <p>&copy; 2023 EnghBlog. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- 移动端菜单交互脚本 -->
+    <script>
+
+        let lastScrollTop = 0;
+        const header = document.querySelector('header');
+
+        window.addEventListener('scroll', () => {
+            const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+
+            if (scrollTop > lastScrollTop) {
+                // 向下滚动时隐藏导航栏
+                header.style.transform = 'translateY(-100%)';
+            } else {
+                // 向上滚动时显示导航栏
+                header.style.transform = 'translateY(0)';
+            }
+
+            lastScrollTop = scrollTop <= 0 ? 0 : scrollTop; // 避免负值
+        });
+        // 移动端菜单切换功能
+        document.getElementById('mobile-menu-button').addEventListener('click', function() {
+            const mobileMenu = document.getElementById('mobile-menu');
+            // 切换菜单显示状态
+            mobileMenu.classList.toggle('hidden');
+        });
+
+        // 点击菜单项后在移动设备上自动关闭菜单
+        document.querySelectorAll('#mobile-menu a').forEach(link => {
+            link.addEventListener('click', function() {
+                if (window.innerWidth < 768) { // 仅在移动视图下
+                    document.getElementById('mobile-menu').classList.add('hidden');
+                }
+            });
+        });
+
+        // 窗口大小改变时处理菜单显示状态
+        window.addEventListener('resize', function() {
+            const mobileMenu = document.getElementById('mobile-menu');z
+            // 在桌面视图下确保菜单隐藏
+            if (window.innerWidth >= 768) {
+                mobileMenu.classList.add('hidden');
+            }
+        });
+    </script>
+</body>
+</html>
