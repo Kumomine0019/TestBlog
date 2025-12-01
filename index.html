@@ -1,302 +1,728 @@
 <!DOCTYPE html>
-<!-- saved from url=(0071)file:///D:/Course%20documents/Computer%20Science/Notes/TestForPre2.html -->
-<html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-    
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Alex Chen | Creative Developer</title>
-    
-    <!-- 1. Load Tailwind CSS (No build step required) -->
-    <script src="./TestForPre2_files/saved_resource"></script>
-    
-    <!-- 2. Load Fonts -->
-    <link rel="preconnect" href="https://fonts.googleapis.com/">
-    <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin="">
-    <link href="./TestForPre2_files/css2" rel="stylesheet">
-
-    <!-- 3. Custom Styles for Animations that Tailwind doesn't handle easily -->
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>SVM Interactive Explorer</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js"></script>
     <style>
-        body {
-            font-family: 'Inter', sans-serif;
-            background-color: #000;
+        body { font-family: 'Noto Sans SC', sans-serif; -webkit-tap-highlight-color: transparent; }
+        
+        /* Custom Animation */
+        .fade-in { animation: fadeIn 0.5s ease-in-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        .pop-in { animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        @keyframes popIn { from { opacity: 0; transform: scale(0.9); } to { opacity: 1; transform: scale(1); } }
+
+        /* Glassmorphism */
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.5);
         }
         
-        h1, h2, h3 {
-            font-family: 'Space Grotesk', sans-serif;
-        }
-
-        /* Staggered Entrance Animation Classes */
-        .fade-in-up {
-            opacity: 0;
-            transform: translateY(20px);
-            transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1), transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
-        }
-
-        .fade-in-up.visible {
-            opacity: 1;
-            transform: translateY(0);
-        }
-
-        /* Shine Effect Animation */
-        .shine-wrapper {
-            position: absolute;
-            top: 0;
-            left: 0;
+        /* Slider Styles - Larger touch targets for mobile */
+        input[type=range] {
+            -webkit-appearance: none;
             width: 100%;
-            height: 100%;
-            overflow: hidden;
-            pointer-events: none;
+            background: transparent;
+            height: 30px; /* Increased touch area */
+            margin: 0;
+            touch-action: none; /* Prevent scroll while dragging */
         }
-
-        .shine-bar {
-            position: absolute;
-            top: 0;
-            left: 0;
+        input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            height: 24px;
+            width: 24px;
+            border-radius: 50%;
+            background: #4F46E5;
+            cursor: pointer;
+            margin-top: -10px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            border: 2px solid white;
+        }
+        input[type=range]::-webkit-slider-runnable-track {
             width: 100%;
-            height: 100%;
-            background: linear-gradient(to right, transparent, rgba(255, 255, 255, 0.05), transparent);
-            transform: skewX(-12deg) translateX(-150%);
-            transition: transform 0.5s;
+            height: 4px;
+            cursor: pointer;
+            background: #E2E8F0;
+            border-radius: 2px;
         }
 
-        .card-link:hover .shine-bar {
-            transform: skewX(-12deg) translateX(150%);
-            transition: transform 0.7s;
+        /* Interactive Terms */
+        .term-link {
+            border-bottom: 1px dashed #6366f1;
+            color: #4f46e5;
+            cursor: pointer;
+            font-weight: 500;
+        }
+        .term-link:hover { background-color: rgba(99, 102, 241, 0.1); }
+
+        /* Mobile specific adjustments */
+        #canvas-container {
+            touch-action: none;
         }
     </style>
-<style>*, ::before, ::after{--tw-border-spacing-x:0;--tw-border-spacing-y:0;--tw-translate-x:0;--tw-translate-y:0;--tw-rotate:0;--tw-skew-x:0;--tw-skew-y:0;--tw-scale-x:1;--tw-scale-y:1;--tw-pan-x: ;--tw-pan-y: ;--tw-pinch-zoom: ;--tw-scroll-snap-strictness:proximity;--tw-gradient-from-position: ;--tw-gradient-via-position: ;--tw-gradient-to-position: ;--tw-ordinal: ;--tw-slashed-zero: ;--tw-numeric-figure: ;--tw-numeric-spacing: ;--tw-numeric-fraction: ;--tw-ring-inset: ;--tw-ring-offset-width:0px;--tw-ring-offset-color:#fff;--tw-ring-color:rgb(59 130 246 / 0.5);--tw-ring-offset-shadow:0 0 #0000;--tw-ring-shadow:0 0 #0000;--tw-shadow:0 0 #0000;--tw-shadow-colored:0 0 #0000;--tw-blur: ;--tw-brightness: ;--tw-contrast: ;--tw-grayscale: ;--tw-hue-rotate: ;--tw-invert: ;--tw-saturate: ;--tw-sepia: ;--tw-drop-shadow: ;--tw-backdrop-blur: ;--tw-backdrop-brightness: ;--tw-backdrop-contrast: ;--tw-backdrop-grayscale: ;--tw-backdrop-hue-rotate: ;--tw-backdrop-invert: ;--tw-backdrop-opacity: ;--tw-backdrop-saturate: ;--tw-backdrop-sepia: ;--tw-contain-size: ;--tw-contain-layout: ;--tw-contain-paint: ;--tw-contain-style: }::backdrop{--tw-border-spacing-x:0;--tw-border-spacing-y:0;--tw-translate-x:0;--tw-translate-y:0;--tw-rotate:0;--tw-skew-x:0;--tw-skew-y:0;--tw-scale-x:1;--tw-scale-y:1;--tw-pan-x: ;--tw-pan-y: ;--tw-pinch-zoom: ;--tw-scroll-snap-strictness:proximity;--tw-gradient-from-position: ;--tw-gradient-via-position: ;--tw-gradient-to-position: ;--tw-ordinal: ;--tw-slashed-zero: ;--tw-numeric-figure: ;--tw-numeric-spacing: ;--tw-numeric-fraction: ;--tw-ring-inset: ;--tw-ring-offset-width:0px;--tw-ring-offset-color:#fff;--tw-ring-color:rgb(59 130 246 / 0.5);--tw-ring-offset-shadow:0 0 #0000;--tw-ring-shadow:0 0 #0000;--tw-shadow:0 0 #0000;--tw-shadow-colored:0 0 #0000;--tw-blur: ;--tw-brightness: ;--tw-contrast: ;--tw-grayscale: ;--tw-hue-rotate: ;--tw-invert: ;--tw-saturate: ;--tw-sepia: ;--tw-drop-shadow: ;--tw-backdrop-blur: ;--tw-backdrop-brightness: ;--tw-backdrop-contrast: ;--tw-backdrop-grayscale: ;--tw-backdrop-hue-rotate: ;--tw-backdrop-invert: ;--tw-backdrop-opacity: ;--tw-backdrop-saturate: ;--tw-backdrop-sepia: ;--tw-contain-size: ;--tw-contain-layout: ;--tw-contain-paint: ;--tw-contain-style: }/* ! tailwindcss v3.4.17 | MIT License | https://tailwindcss.com */*,::after,::before{box-sizing:border-box;border-width:0;border-style:solid;border-color:#e5e7eb}::after,::before{--tw-content:''}:host,html{line-height:1.5;-webkit-text-size-adjust:100%;-moz-tab-size:4;tab-size:4;font-family:ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";font-feature-settings:normal;font-variation-settings:normal;-webkit-tap-highlight-color:transparent}body{margin:0;line-height:inherit}hr{height:0;color:inherit;border-top-width:1px}abbr:where([title]){-webkit-text-decoration:underline dotted;text-decoration:underline dotted}h1,h2,h3,h4,h5,h6{font-size:inherit;font-weight:inherit}a{color:inherit;text-decoration:inherit}b,strong{font-weight:bolder}code,kbd,pre,samp{font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;font-feature-settings:normal;font-variation-settings:normal;font-size:1em}small{font-size:80%}sub,sup{font-size:75%;line-height:0;position:relative;vertical-align:baseline}sub{bottom:-.25em}sup{top:-.5em}table{text-indent:0;border-color:inherit;border-collapse:collapse}button,input,optgroup,select,textarea{font-family:inherit;font-feature-settings:inherit;font-variation-settings:inherit;font-size:100%;font-weight:inherit;line-height:inherit;letter-spacing:inherit;color:inherit;margin:0;padding:0}button,select{text-transform:none}button,input:where([type=button]),input:where([type=reset]),input:where([type=submit]){-webkit-appearance:button;background-color:transparent;background-image:none}:-moz-focusring{outline:auto}:-moz-ui-invalid{box-shadow:none}progress{vertical-align:baseline}::-webkit-inner-spin-button,::-webkit-outer-spin-button{height:auto}[type=search]{-webkit-appearance:textfield;outline-offset:-2px}::-webkit-search-decoration{-webkit-appearance:none}::-webkit-file-upload-button{-webkit-appearance:button;font:inherit}summary{display:list-item}blockquote,dd,dl,figure,h1,h2,h3,h4,h5,h6,hr,p,pre{margin:0}fieldset{margin:0;padding:0}legend{padding:0}menu,ol,ul{list-style:none;margin:0;padding:0}dialog{padding:0}textarea{resize:vertical}input::placeholder,textarea::placeholder{opacity:1;color:#9ca3af}[role=button],button{cursor:pointer}:disabled{cursor:default}audio,canvas,embed,iframe,img,object,svg,video{display:block;vertical-align:middle}img,video{max-width:100%;height:auto}[hidden]:where(:not([hidden=until-found])){display:none}.pointer-events-none{pointer-events:none}.visible{visibility:visible}.fixed{position:fixed}.relative{position:relative}.inset-0{inset:0px}.z-0{z-index:0}.z-10{z-index:10}.z-\[1\]{z-index:1}.mb-6{margin-bottom:1.5rem}.mb-8{margin-bottom:2rem}.mt-12{margin-top:3rem}.mt-2{margin-top:0.5rem}.flex{display:flex}.h-24{height:6rem}.h-full{height:100%}.h-screen{height:100vh}.w-24{width:6rem}.w-full{width:100%}.max-w-md{max-width:28rem}.scale-95{--tw-scale-x:.95;--tw-scale-y:.95;transform:translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y))}.scale-100{--tw-scale-x:1;--tw-scale-y:1;transform:translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y))}.transform{transform:translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y))}.cursor-pointer{cursor:pointer}.flex-col{flex-direction:column}.items-center{align-items:center}.justify-center{justify-content:center}.justify-between{justify-content:space-between}.gap-4{gap:1rem}.gap-6{gap:1.5rem}.gap-8{gap:2rem}.overflow-hidden{overflow:hidden}.overflow-y-auto{overflow-y:auto}.rounded-2xl{border-radius:1rem}.rounded-full{border-radius:9999px}.rounded-xl{border-radius:0.75rem}.border{border-width:1px}.border-white\/10{border-color:rgb(255 255 255 / 0.1)}.border-white\/5{border-color:rgb(255 255 255 / 0.05)}.bg-black{--tw-bg-opacity:1;background-color:rgb(0 0 0 / var(--tw-bg-opacity, 1))}.bg-black\/20{background-color:rgb(0 0 0 / 0.2)}.bg-black\/80{background-color:rgb(0 0 0 / 0.8)}.bg-white\/5{background-color:rgb(255 255 255 / 0.05)}.bg-gradient-to-b{background-image:linear-gradient(to bottom, var(--tw-gradient-stops))}.bg-gradient-to-tr{background-image:linear-gradient(to top right, var(--tw-gradient-stops))}.from-cyan-500{--tw-gradient-from:#06b6d4 var(--tw-gradient-from-position);--tw-gradient-to:rgb(6 182 212 / 0) var(--tw-gradient-to-position);--tw-gradient-stops:var(--tw-gradient-from), var(--tw-gradient-to)}.from-white{--tw-gradient-from:#fff var(--tw-gradient-from-position);--tw-gradient-to:rgb(255 255 255 / 0) var(--tw-gradient-to-position);--tw-gradient-stops:var(--tw-gradient-from), var(--tw-gradient-to)}.via-white{--tw-gradient-to:rgb(255 255 255 / 0)  var(--tw-gradient-to-position);--tw-gradient-stops:var(--tw-gradient-from), #fff var(--tw-gradient-via-position), var(--tw-gradient-to)}.to-purple-500{--tw-gradient-to:#a855f7 var(--tw-gradient-to-position)}.to-white\/60{--tw-gradient-to:rgb(255 255 255 / 0.6) var(--tw-gradient-to-position)}.bg-clip-text{-webkit-background-clip:text;background-clip:text}.object-cover{object-fit:cover}.p-1{padding:0.25rem}.p-3{padding:0.75rem}.p-4{padding:1rem}.p-5{padding:1.25rem}.p-6{padding:1.5rem}.text-center{text-align:center}.font-mono{font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace}.text-4xl{font-size:2.25rem;line-height:2.5rem}.text-lg{font-size:1.125rem;line-height:1.75rem}.text-sm{font-size:0.875rem;line-height:1.25rem}.text-xs{font-size:0.75rem;line-height:1rem}.font-bold{font-weight:700}.font-light{font-weight:300}.font-medium{font-weight:500}.uppercase{text-transform:uppercase}.tracking-tight{letter-spacing:-0.025em}.tracking-wide{letter-spacing:0.025em}.tracking-widest{letter-spacing:0.1em}.text-cyan-200\/80{color:rgb(165 243 252 / 0.8)}.text-cyan-300{--tw-text-opacity:1;color:rgb(103 232 249 / var(--tw-text-opacity, 1))}.text-gray-100{--tw-text-opacity:1;color:rgb(243 244 246 / var(--tw-text-opacity, 1))}.text-gray-400{--tw-text-opacity:1;color:rgb(156 163 175 / var(--tw-text-opacity, 1))}.text-gray-500{--tw-text-opacity:1;color:rgb(107 114 128 / var(--tw-text-opacity, 1))}.text-transparent{color:transparent}.text-white{--tw-text-opacity:1;color:rgb(255 255 255 / var(--tw-text-opacity, 1))}.text-white\/20{color:rgb(255 255 255 / 0.2)}.opacity-0{opacity:0}.opacity-20{opacity:0.2}.opacity-90{opacity:0.9}.opacity-100{opacity:1}.mix-blend-overlay{mix-blend-mode:overlay}.shadow-\[0_0_40px_rgba\(34\2c 211\2c 238\2c 0\.3\)\]{--tw-shadow:0 0 40px rgba(34,211,238,0.3);--tw-shadow-colored:0 0 40px var(--tw-shadow-color);box-shadow:var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow)}.shadow-lg{--tw-shadow:0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);--tw-shadow-colored:0 10px 15px -3px var(--tw-shadow-color), 0 4px 6px -4px var(--tw-shadow-color);box-shadow:var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow)}.blur-sm{--tw-blur:blur(4px);filter:var(--tw-blur) var(--tw-brightness) var(--tw-contrast) var(--tw-grayscale) var(--tw-hue-rotate) var(--tw-invert) var(--tw-saturate) var(--tw-sepia) var(--tw-drop-shadow)}.blur-0{--tw-blur:blur(0);filter:var(--tw-blur) var(--tw-brightness) var(--tw-contrast) var(--tw-grayscale) var(--tw-hue-rotate) var(--tw-invert) var(--tw-saturate) var(--tw-sepia) var(--tw-drop-shadow)}.backdrop-blur-md{--tw-backdrop-blur:blur(12px);-webkit-backdrop-filter:var(--tw-backdrop-blur) var(--tw-backdrop-brightness) var(--tw-backdrop-contrast) var(--tw-backdrop-grayscale) var(--tw-backdrop-hue-rotate) var(--tw-backdrop-invert) var(--tw-backdrop-opacity) var(--tw-backdrop-saturate) var(--tw-backdrop-sepia);backdrop-filter:var(--tw-backdrop-blur) var(--tw-backdrop-brightness) var(--tw-backdrop-contrast) var(--tw-backdrop-grayscale) var(--tw-backdrop-hue-rotate) var(--tw-backdrop-invert) var(--tw-backdrop-opacity) var(--tw-backdrop-saturate) var(--tw-backdrop-sepia)}.backdrop-blur-sm{--tw-backdrop-blur:blur(4px);-webkit-backdrop-filter:var(--tw-backdrop-blur) var(--tw-backdrop-brightness) var(--tw-backdrop-contrast) var(--tw-backdrop-grayscale) var(--tw-backdrop-hue-rotate) var(--tw-backdrop-invert) var(--tw-backdrop-opacity) var(--tw-backdrop-saturate) var(--tw-backdrop-sepia);backdrop-filter:var(--tw-backdrop-blur) var(--tw-backdrop-brightness) var(--tw-backdrop-contrast) var(--tw-backdrop-grayscale) var(--tw-backdrop-hue-rotate) var(--tw-backdrop-invert) var(--tw-backdrop-opacity) var(--tw-backdrop-saturate) var(--tw-backdrop-sepia)}.transition-all{transition-property:all;transition-timing-function:cubic-bezier(0.4, 0, 0.2, 1);transition-duration:150ms}.transition-colors{transition-property:color, background-color, border-color, fill, stroke, -webkit-text-decoration-color;transition-property:color, background-color, border-color, text-decoration-color, fill, stroke;transition-property:color, background-color, border-color, text-decoration-color, fill, stroke, -webkit-text-decoration-color;transition-timing-function:cubic-bezier(0.4, 0, 0.2, 1);transition-duration:150ms}.transition-opacity{transition-property:opacity;transition-timing-function:cubic-bezier(0.4, 0, 0.2, 1);transition-duration:150ms}.duration-1000{transition-duration:1000ms}.duration-300{transition-duration:300ms}.ease-out{transition-timing-function:cubic-bezier(0, 0, 0.2, 1)}.selection\:bg-cyan-500\/30 *::selection{background-color:rgb(6 182 212 / 0.3)}.selection\:bg-cyan-500\/30::selection{background-color:rgb(6 182 212 / 0.3)}.hover\:scale-110:hover{--tw-scale-x:1.1;--tw-scale-y:1.1;transform:translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y))}.hover\:scale-\[1\.02\]:hover{--tw-scale-x:1.02;--tw-scale-y:1.02;transform:translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y))}.hover\:bg-white\/10:hover{background-color:rgb(255 255 255 / 0.1)}.hover\:text-cyan-300:hover{--tw-text-opacity:1;color:rgb(103 232 249 / var(--tw-text-opacity, 1))}.hover\:text-white:hover{--tw-text-opacity:1;color:rgb(255 255 255 / var(--tw-text-opacity, 1))}.hover\:opacity-100:hover{opacity:1}.group:hover .group-hover\:-translate-y-1{--tw-translate-y:-0.25rem;transform:translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y))}.group:hover .group-hover\:translate-x-1{--tw-translate-x:0.25rem;transform:translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y))}.group:hover .group-hover\:bg-cyan-500\/20{background-color:rgb(6 182 212 / 0.2)}.group:hover .group-hover\:text-cyan-300{--tw-text-opacity:1;color:rgb(103 232 249 / var(--tw-text-opacity, 1))}.group:hover .group-hover\:text-white{--tw-text-opacity:1;color:rgb(255 255 255 / var(--tw-text-opacity, 1))}</style></head>
-<body class="text-white overflow-hidden h-screen w-full relative selection:bg-cyan-500/30">
+</head>
+<body class="bg-gradient-to-br from-slate-50 to-indigo-50 min-h-screen flex flex-col md:items-center md:justify-center p-2 md:p-8 text-slate-800">
 
-    <!-- LAYER 1: Canvas Background -->
-    <canvas id="neural-canvas" class="fixed inset-0 z-0 bg-black" width="489" height="674"></canvas>
+    <!-- Language Toggle -->
+    <button onclick="toggleLanguage()" class="absolute top-4 right-4 z-50 bg-white px-3 py-2 rounded-full shadow-md text-sm font-bold text-slate-600 border border-slate-200 active:scale-95 transition-transform">
+        <i class="fa-solid fa-globe mr-1 text-indigo-500"></i> <span id="lang-text">English</span>
+    </button>
 
-    <!-- LAYER 2: Noise Texture Overlay -->
-    <div class="fixed inset-0 z-[1] opacity-20 pointer-events-none mix-blend-overlay" style="background-image: url(&#39;data:image/svg+xml,%3Csvg viewBox=\&#39;0 0 200 200\&#39; xmlns=\&#39;http://www.w3.org/2000/svg\&#39;%3E%3Cfilter id=\&#39;noiseFilter\&#39;%3E%3CfeTurbulence type=\&#39;fractalNoise\&#39; baseFrequency=\&#39;0.65\&#39; numOctaves=\&#39;3\&#39; stitchTiles=\&#39;stitch\&#39;/%3E%3C/filter%3E%3Crect width=\&#39;100%25\&#39; height=\&#39;100%25\&#39; filter=\&#39;url(%23noiseFilter)\&#39;/%3E%3C/svg%3E&#39;);">
+    <!-- Term Definition Popup (Hidden by default) -->
+    <div id="term-popup" class="fixed inset-0 z-[60] flex items-center justify-center bg-black/20 backdrop-blur-sm hidden" onclick="hideTerm()">
+        <div class="bg-white p-6 rounded-2xl shadow-2xl max-w-xs md:max-w-md mx-4 pop-in relative" onclick="event.stopPropagation()">
+            <button onclick="hideTerm()" class="absolute top-3 right-3 text-slate-400 hover:text-slate-600">
+                <i class="fa-solid fa-xmark text-xl"></i>
+            </button>
+            <h3 id="term-title" class="text-xl font-bold text-indigo-600 mb-2"></h3>
+            <p id="term-desc" class="text-slate-600 text-sm leading-relaxed"></p>
+        </div>
     </div>
 
-    <!-- LAYER 3: Main Content -->
-    <main class="relative z-10 w-full h-full flex flex-col items-center justify-center p-6 overflow-y-auto">
+    <div class="max-w-6xl w-full grid grid-cols-1 lg:grid-cols-12 gap-4 lg:gap-6 h-auto lg:h-[85vh]">
         
-        <!-- Glass Container -->
-        <div id="main-container" class="w-full max-w-md transition-all duration-1000 ease-out opacity-100 scale-100 blur-0">
+        <!-- Left: Visualization Canvas -->
+        <div class="lg:col-span-8 bg-white rounded-2xl shadow-xl overflow-hidden relative flex flex-col border border-slate-100 min-h-[40vh] lg:h-full order-2 lg:order-1">
+            <!-- Dynamic Feedback Banner (Mobile Friendly) -->
+            <div id="feedback-banner" class="absolute top-0 left-0 right-0 p-3 text-center text-sm font-bold transform transition-transform duration-300 -translate-y-full z-20">
+                <span id="feedback-text"></span>
+            </div>
+
+            <div class="absolute top-4 left-4 z-10 bg-white/90 px-3 py-1 rounded-full text-xs font-mono text-slate-500 shadow-sm border border-slate-200 pointer-events-none" data-key="canvasLabel">
+                SVM Visualization Canvas
+            </div>
             
-            <!-- Header / Profile -->
-            <div class="flex flex-col items-center text-center mb-8">
-                <!-- Avatar -->
-                
-
-                <!-- Name & Title -->
-                <h1 class="text-4xl font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-b from-white via-white to-white/60 fade-in-up visible" style="transition-delay: 200ms;">————</h1>
-                <p class="mt-2 text-cyan-200/80 font-mono text-sm tracking-wide fade-in-up visible" style="transition-delay: 300ms;">——</p>
+            <!-- Canvas Container -->
+            <div class="flex-grow relative bg-slate-50" id="canvas-container">
+                <canvas id="svmCanvas" class="w-full h-full block"></canvas>
             </div>
 
-            <!-- Links Grid -->
-            <div class="flex flex-col gap-4 w-full">
-                
-                <!-- Link 1 -->
-                <a href="file:///D:/Course%20documents/Computer%20Science/Notes/TestForPre2.html#project" target="_blank" class="card-link group relative flex items-center justify-between p-5 rounded-2xl border border-white/10 bg-white/5 backdrop-blur-md shadow-lg cursor-pointer overflow-hidden transition-all duration-300 hover:scale-[1.02] hover:bg-white/10 fade-in-up visible" style="transition-delay: 400ms;">
-                    <div class="shine-wrapper"><div class="shine-bar"></div></div>
-                    <div class="flex items-center gap-4 z-10">
-                        <div class="p-3 rounded-xl bg-white/5 text-cyan-300 group-hover:text-white group-hover:bg-cyan-500/20 transition-colors duration-300">
-                            <!-- Sparkles Icon -->
-                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"></path></svg>
-                        </div>
-                        <div class="flex flex-col">
-                            <span class="text-lg font-medium text-gray-100 group-hover:text-white transition-colors">1</span>
-                            <span class="text-sm text-gray-400 font-light">.</span>
-                        </div>
+            <!-- Bottom Status Bar -->
+            <div class="h-auto py-2 md:h-12 border-t border-slate-100 flex flex-col md:flex-row items-center px-4 justify-between bg-white text-xs md:text-sm text-slate-500 gap-2">
+                <span id="status-text" class="font-medium" data-key="statusReady">就绪</span>
+                <div class="flex gap-3 md:gap-4 flex-wrap justify-center">
+                    <div class="flex items-center gap-1.5">
+                        <span class="w-2.5 h-2.5 rounded-full bg-rose-500"></span> <span data-key="classA">A</span>
                     </div>
-                    <div class="text-gray-500 group-hover:text-cyan-300 transition-all duration-300 transform group-hover:translate-x-1 group-hover:-translate-y-1 z-10">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M7 7h10v10"></path><path d="M7 17 17 7"></path></svg>
+                    <div class="flex items-center gap-1.5">
+                        <span class="w-2.5 h-2.5 rounded-full bg-blue-500"></span> <span data-key="classB">B</span>
                     </div>
-                </a>
-
-                <!-- Link 2 -->
-                
-
-                <!-- Link 3 -->
-                <a href="file:///D:/Course%20documents/Computer%20Science/Notes/TestForPre2.html#figma" target="_blank" class="card-link group relative flex items-center justify-between p-5 rounded-2xl border border-white/10 bg-white/5 backdrop-blur-md shadow-lg cursor-pointer overflow-hidden transition-all duration-300 hover:scale-[1.02] hover:bg-white/10 fade-in-up visible" style="transition-delay: 600ms;">
-                    <div class="shine-wrapper"><div class="shine-bar"></div></div>
-                    <div class="flex items-center gap-4 z-10">
-                        <div class="p-3 rounded-xl bg-white/5 text-cyan-300 group-hover:text-white group-hover:bg-cyan-500/20 transition-colors duration-300">
-                            <!-- Layers Icon -->
-                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="m12.83 2.18a2 2 0 0 0-1.66 0L2.6 6.08a1 1 0 0 0 0 1.83l8.58 3.91a2 2 0 0 0 1.66 0l8.58-3.9a1 1 0 0 0 0-1.83Z"></path><path d="m22 17.65-9.17 4.16a2 2 0 0 1-1.66 0L2 17.65"></path><path d="m22 12.65-9.17 4.16a2 2 0 0 1-1.66 0L2 12.65"></path></svg>
-                        </div>
-                        <div class="flex flex-col">
-                            <span class="text-lg font-medium text-gray-100 group-hover:text-white transition-colors">2</span>
-                            <span class="text-sm text-gray-400 font-light">.</span>
-                        </div>
+                    <div class="flex items-center gap-1.5">
+                        <span class="w-2.5 h-2.5 rounded-full border-2 border-yellow-500 bg-transparent"></span> <span data-key="sv">支持向量</span>
                     </div>
-                    <div class="text-gray-500 group-hover:text-cyan-300 transition-all duration-300 transform group-hover:translate-x-1 group-hover:-translate-y-1 z-10">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M7 7h10v10"></path><path d="M7 17 17 7"></path></svg>
-                    </div>
-                </a>
-
-                <!-- Link 4 -->
-                
-
-            </div>
-
-            <!-- Footer / Socials -->
-            <div class="mt-12 flex flex-col items-center gap-6 fade-in-up visible" style="transition-delay: 800ms;">
-                <div class="flex gap-8 p-4 rounded-full bg-black/20 backdrop-blur-md border border-white/5">
-                    <a href="file:///D:/Course%20documents/Computer%20Science/Notes/TestForPre2.html#" class="text-gray-400 hover:text-white hover:scale-110 hover:text-cyan-300 transition-all duration-300">
-                        <!-- Github -->
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.403 5.403 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4"></path><path d="M9 18c-4.51 2-5-2-7-2"></path></svg>
-                    </a>
-                    <a href="file:///D:/Course%20documents/Computer%20Science/Notes/TestForPre2.html#" class="text-gray-400 hover:text-white hover:scale-110 hover:text-cyan-300 transition-all duration-300">
-                        <!-- Twitter -->
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 4s-.7 2.1-2 3.4c1.6 10-9.4 17.3-18 11.6 2.2.1 4.4-.6 6-2C3 15.5.5 9.6 3 5c2.2 2.6 5.6 4.1 9 4-.9-4.2 4-6.6 7-3.8 1.1 0 3-1.2 3-1.2z"></path></svg>
-                    </a>
-                    <a href="file:///D:/Course%20documents/Computer%20Science/Notes/TestForPre2.html#" class="text-gray-400 hover:text-white hover:scale-110 hover:text-cyan-300 transition-all duration-300">
-                        <!-- LinkedIn -->
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"></path><rect width="4" height="12" x="2" y="9"></rect><circle cx="4" cy="4" r="2"></circle></svg>
-                    </a>
                 </div>
-                
-                <p class="text-xs text-white/20 font-light tracking-widest uppercase">
-                    © 2024 Design // Code
-                </p>
             </div>
         </div>
-    </main>
 
-    <!-- LOGIC SCRIPT -->
-    <script>
-        // 1. Entrance Animations
-        document.addEventListener('DOMContentLoaded', () => {
-            // Trigger container fade in
-            const container = document.getElementById('main-container');
-            container.classList.remove('opacity-0', 'scale-95', 'blur-sm');
-            container.classList.add('opacity-100', 'scale-100', 'blur-0');
-
-            // Trigger staggered children
-            const animatedElements = document.querySelectorAll('.fade-in-up');
-            animatedElements.forEach(el => {
-                el.classList.add('visible');
-            });
-        });
-
-        // 2. Neural Background Particle System
-        (function() {
-            const canvas = document.getElementById("neural-canvas");
-            const ctx = canvas.getContext("2d");
-            let animationFrameId;
-            let particles = [];
+        <!-- Right: Control Panel & Tutorial -->
+        <div class="lg:col-span-4 flex flex-col gap-4 h-auto lg:h-full order-1 lg:order-2">
             
-            // Configuration
-            const particleCount = 60;
-            const connectionDistance = 150;
-            const mouseDistance = 200;
+            <!-- Title Card -->
+            <div class="glass-panel p-5 rounded-2xl shadow-lg">
+                <div class="flex items-center justify-between mb-2">
+                    <h1 class="text-xl md:text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-indigo-600 to-purple-600" data-key="mainTitle">
+                        支持向量机 SVM
+                    </h1>
+                    <i class="fa-solid fa-brain text-indigo-500 text-xl"></i>
+                </div>
+                <!-- Interactive explanation with clickable terms -->
+                <p class="text-slate-600 text-sm leading-relaxed" id="intro-desc">
+                    <!-- Content injected by JS -->
+                </p>
+            </div>
 
-            let w = (canvas.width = window.innerWidth);
-            let h = (canvas.height = window.innerHeight);
-
-            // Mouse state
-            const mouse = { x: null, y: null };
-
-            // Particle Class
-            class Particle {
-                constructor() {
-                    this.x = Math.random() * w;
-                    this.y = Math.random() * h;
-                    this.vx = (Math.random() - 0.5) * 0.5;
-                    this.vy = (Math.random() - 0.5) * 0.5;
-                    this.size = Math.random() * 2 + 1;
-                    this.type = Math.random() > 0.5 ? 'cyan' : 'purple'; 
-                }
-
-                update() {
-                    this.x += this.vx;
-                    this.y += this.vy;
-
-                    // Bounce off edges
-                    if (this.x < 0 || this.x > w) this.vx *= -1;
-                    if (this.y < 0 || this.y > h) this.vy *= -1;
-
-                    // Mouse Interaction
-                    if (mouse.x != null) {
-                        const dx = mouse.x - this.x;
-                        const dy = mouse.y - this.y;
-                        const distance = Math.sqrt(dx * dx + dy * dy);
-                        
-                        if (distance < mouseDistance) {
-                            const forceDirectionX = dx / distance;
-                            const forceDirectionY = dy / distance;
-                            const force = (mouseDistance - distance) / mouseDistance;
-                            
-                            const direction = -1; // Push away
-                            const strength = 0.5;
-                            
-                            this.vx += forceDirectionX * force * strength * direction;
-                            this.vy += forceDirectionY * force * strength * direction;
-                        }
-                    }
-                }
-
-                draw() {
-                    ctx.beginPath();
-                    ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
-                    ctx.fillStyle = this.type === 'cyan' ? 'rgba(34, 211, 238, 0.5)' : 'rgba(168, 85, 247, 0.5)';
-                    ctx.fill();
-                }
-            }
-
-            const initParticles = () => {
-                particles = [];
-                for (let i = 0; i < particleCount; i++) {
-                    particles.push(new Particle());
-                }
-            };
-
-            const animate = () => {
-                ctx.clearRect(0, 0, w, h);
+            <!-- Interactive Control Area -->
+            <div class="glass-panel p-5 rounded-2xl shadow-lg flex-grow flex flex-col relative overflow-hidden min-h-[300px]">
                 
-                particles.forEach((p, index) => {
-                    p.update();
-                    p.draw();
+                <!-- Step Navigation -->
+                <div class="flex justify-between mb-4 border-b border-slate-200 pb-2 overflow-x-auto">
+                    <button onclick="setStep(0)" class="step-btn whitespace-nowrap text-xs font-bold px-3 py-1.5 rounded-full bg-indigo-100 text-indigo-700 transition-colors mr-1" data-step="0" data-key="step0Btn">1. 数据</button>
+                    <button onclick="setStep(1)" class="step-btn whitespace-nowrap text-xs font-bold px-3 py-1.5 rounded-full text-slate-500 hover:bg-slate-100 transition-colors mr-1" data-step="1" data-key="step1Btn">2. 决策边界</button>
+                    <button onclick="setStep(2)" class="step-btn whitespace-nowrap text-xs font-bold px-3 py-1.5 rounded-full text-slate-500 hover:bg-slate-100 transition-colors mr-1" data-step="2" data-key="step2Btn">3. 最优解</button>
+                    <button onclick="setStep(3)" class="step-btn whitespace-nowrap text-xs font-bold px-3 py-1.5 rounded-full text-slate-500 hover:bg-slate-100 transition-colors" data-step="3" data-key="step3Btn">4. 试一试</button>
+                </div>
 
-                    // Connect particles
-                    for (let j = index; j < particles.length; j++) {
-                        const p2 = particles[j];
-                        const dx = p.x - p2.x;
-                        const dy = p.y - p2.y;
-                        const distance = Math.sqrt(dx * dx + dy * dy);
+                <!-- Content Area -->
+                <div id="content-area" class="flex-grow relative">
+                    
+                    <!-- Step 0: Data Intro -->
+                    <div class="step-content absolute inset-0 fade-in" id="step-0">
+                        <h3 class="font-bold text-lg mb-2 text-slate-800" data-key="step0Title">混乱的数据点</h3>
+                        <p class="text-sm text-slate-600 mb-4" data-key="step0Desc">
+                            想象这是两种不同类型的细胞，或者垃圾邮件与正常邮件的特征分布。<br><br>
+                            我们的任务是画一条直线，把红球和蓝球完全分开。
+                        </p>
+                        <div class="bg-indigo-50 p-3 rounded-lg border border-indigo-100 text-sm text-indigo-800 flex items-start">
+                            <i class="fa-solid fa-lightbulb mt-1 mr-2 flex-shrink-0"></i> 
+                            <span data-key="step0Hint">提示：点击“决策边界”看看怎么分。</span>
+                        </div>
+                    </div>
 
-                        if (distance < connectionDistance) {
-                            ctx.beginPath();
-                            ctx.strokeStyle = `rgba(100, 116, 139, ${1 - distance / connectionDistance})`;
-                            ctx.lineWidth = 0.5;
-                            ctx.moveTo(p.x, p.y);
-                            ctx.lineTo(p2.x, p2.y);
-                            ctx.stroke();
-                        }
+                    <!-- Step 1: Decision Boundary -->
+                    <div class="step-content absolute inset-0 opacity-0 pointer-events-none transition-opacity duration-300" id="step-1">
+                        <h3 class="font-bold text-lg mb-2 text-slate-800" data-key="step1Title">无数种分法</h3>
+                        <p class="text-sm text-slate-600 mb-4" id="step1-desc">
+                            <!-- Injected JS -->
+                        </p>
+                        <div class="bg-rose-50 p-3 rounded-lg border border-rose-100 text-sm text-rose-800 flex items-start">
+                            <i class="fa-solid fa-triangle-exclamation mt-1 mr-2 flex-shrink-0"></i> 
+                            <span data-key="step1Hint">问题：离数据点太近，<b>鲁棒性</b>差。</span>
+                        </div>
+                    </div>
+
+                    <!-- Step 2: Margin & Support Vectors -->
+                    <div class="step-content absolute inset-0 opacity-0 pointer-events-none transition-opacity duration-300" id="step-2">
+                        <h3 class="font-bold text-lg mb-2 text-slate-800" data-key="step2Title">寻找最大间隔</h3>
+                        <p class="text-sm text-slate-600 mb-4" id="step2-desc">
+                            <!-- Injected JS -->
+                        </p>
+                        <ul class="text-xs md:text-sm text-slate-600 space-y-2 mb-4 list-none pl-1" id="step2-list">
+                           <!-- Injected JS -->
+                        </ul>
+                        <div class="bg-emerald-50 p-3 rounded-lg border border-emerald-100 text-sm text-emerald-800 flex items-start">
+                            <i class="fa-solid fa-check mt-1 mr-2 flex-shrink-0"></i> 
+                            <span data-key="step2Hint">只有支持向量决定了路的位置，其他点不重要！</span>
+                        </div>
+                    </div>
+
+                    <!-- Step 3: Interactive Challenge -->
+                    <div class="step-content absolute inset-0 opacity-0 pointer-events-none transition-opacity duration-300" id="step-3">
+                        <h3 class="font-bold text-lg mb-2 text-slate-800 flex items-center gap-2">
+                            <span data-key="step3Title">手动 SVM 挑战</span>
+                            <span class="text-xs bg-indigo-100 text-indigo-600 px-2 py-0.5 rounded-full">Interactive</span>
+                        </h3>
+                        <p class="text-sm text-slate-600 mb-4" data-key="step3Desc">
+                            试着调节滑块。目标：<br>1. 分开红蓝点。<br>2. 让中间的绿色区域尽可能宽。
+                        </p>
+                        
+                        <div class="space-y-5 bg-slate-50 p-4 rounded-xl border border-slate-200">
+                            <div>
+                                <label class="flex justify-between text-xs font-bold text-slate-500 mb-2">
+                                    <span data-key="slope">旋转角度</span> <span id="angle-val" class="bg-white px-2 rounded border">45°</span>
+                                </label>
+                                <input type="range" id="angle-slider" min="0" max="180" value="45" step="1" oninput="manualUpdate()">
+                            </div>
+                            <div>
+                                <label class="flex justify-between text-xs font-bold text-slate-500 mb-2">
+                                    <span data-key="bias">位置偏移</span> <span id="bias-val" class="bg-white px-2 rounded border">0</span>
+                                </label>
+                                <input type="range" id="bias-slider" min="-300" max="300" value="0" step="1" oninput="manualUpdate()">
+                            </div>
+                        </div>
+                        
+                        <div id="margin-score" class="mt-4 text-center font-mono font-bold text-xl text-slate-300 transition-colors duration-300">
+                            Margin: 0.00
+                        </div>
+                    </div>
+
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- 1. Config & Localization with Glossary ---
+        
+        const terms = {
+            zh: {
+                optimalBoundary: { title: "最优边界 (Optimal Boundary)", desc: "在所有可能的分类线中，能够最大程度区分两类数据的线。它对未来的未知数据有最好的预测能力。" },
+                robustness: { title: "鲁棒性 (Robustness)", desc: "模型的抗干扰能力。如果一条分类线离数据点太近，稍微有一点噪音或新数据，分类就会出错，这就叫鲁棒性差。" },
+                hyperplane: { title: "超平面 (Hyperplane)", desc: "在二维空间是直线，在三维空间是平面，在高维空间叫超平面。它是分割数据的“刀”。" },
+                margin: { title: "间隔 (Margin)", desc: "超平面到最近的数据点（支持向量）之间的距离。SVM 的目标就是让这个距离最大化。" },
+                supportVectors: { title: "支持向量 (Support Vectors)", desc: "离超平面最近的那些数据点。它们像柱子一样“支撑”着超平面。如果移除非支持向量的点，超平面不会改变。" }
+            },
+            en: {
+                optimalBoundary: { title: "Optimal Boundary", desc: "The line that best separates the two classes of data among all possibilities. It offers the best prediction for future unknown data." },
+                robustness: { title: "Robustness", desc: "The ability to withstand errors. If a line is too close to data points, slight noise can cause misclassification. This is poor robustness." },
+                hyperplane: { title: "Hyperplane", desc: "A line in 2D, a plane in 3D, and a hyperplane in higher dimensions. It acts as the 'knife' that separates the data." },
+                margin: { title: "Margin", desc: "The distance between the hyperplane and the closest data points (Support Vectors). SVM aims to maximize this width." },
+                supportVectors: { title: "Support Vectors", desc: "The data points closest to the hyperplane. They 'support' or define the boundary. Removing other points won't change the boundary." }
+            }
+        };
+
+        const i18n = {
+            zh: {
+                title: "SVM 交互式可视化探索",
+                canvasLabel: "SVM 可视化画布",
+                statusReady: "就绪",
+                classA: "A",
+                classB: "B",
+                sv: "支持向量",
+                mainTitle: "支持向量机 SVM",
+                // Rich text with terms
+                introDesc: `SVM 是一种寻找 <span class="term-link" onclick="showTerm('optimalBoundary')">最优边界 (?)</span> 的分类算法。它的目标不仅是分开数据，而是找到一条“路”，让这条路尽可能宽。`,
+                step0Btn: "1. 数据",
+                step1Btn: "2. 决策边界",
+                step2Btn: "3. 最优解",
+                step3Btn: "4. 试一试",
+                step0Title: "混乱的数据点",
+                step0Desc: "想象这是两种不同类型的细胞，或者垃圾邮件与正常邮件的特征分布。<br><br>我们的任务是画一条直线，把红球和蓝球完全分开。",
+                step0Hint: "提示：点击“决策边界”看看怎么分。",
+                step1Title: "无数种分法",
+                step1Desc: `只要能分开红蓝两组，任何直线都是合格的“分类器”。<br><br>但是，有些线离数据点太近了。如果新来一个数据点稍微偏一点，就容易分错。`,
+                step1Hint: `问题：离数据点太近，<span class="term-link font-bold underline decoration-dotted" onclick="showTerm('robustness')">鲁棒性 (?)</span> 差。`,
+                step2Title: "寻找最大间隔",
+                step2Desc: `SVM 的核心魔法：我们要找一条路，这条路在不碰到任何球的前提下，<b>越宽越好</b>。`,
+                step2List: `<li><span class="term-link" onclick="showTerm('hyperplane')">超平面 (?)</span>: 路中间的实线。</li><li><span class="term-link" onclick="showTerm('margin')">间隔 (?)</span>: 路的宽度。</li><li><span class="term-link" onclick="showTerm('supportVectors')">支持向量 (?)</span>: 那些“撑”起路边线的关键点。</li>`,
+                step2Hint: "只有支持向量决定了路的位置，其他点不重要！",
+                step3Title: "手动 SVM 挑战",
+                step3Desc: "试着调节滑块。目标：<br>1. 分开红蓝点。<br>2. 让中间的绿色区域尽可能宽。",
+                slope: "旋转角度",
+                bias: "位置偏移",
+                statusStep1: "一般的分类线",
+                statusStep2: "最优超平面",
+                statusStep3: "手动探索模式",
+                error: "⚠️ 分类错误! 重叠了",
+                margin: "Margin: ",
+                feedbackSuccess: "✅ 完美分离！间隔宽度: ",
+                feedbackFail: "⚠️ 发生碰撞！无法分类",
+                feedbackOptimal: "🏆 你找到了最优解！"
+            },
+            en: {
+                title: "Interactive SVM Explorer",
+                canvasLabel: "SVM Visualization Canvas",
+                statusReady: "Ready",
+                classA: "A",
+                classB: "B",
+                sv: "Supp. Vec.",
+                mainTitle: "Support Vector Machine",
+                introDesc: `SVM is an algorithm finding the <span class="term-link" onclick="showTerm('optimalBoundary')">Optimal Boundary (?)</span>. Its goal is a path as wide as possible.`,
+                step0Btn: "1. Data",
+                step1Btn: "2. Boundary",
+                step2Btn: "3. Optimal",
+                step3Btn: "4. Try It",
+                step0Title: "The Data Points",
+                step0Desc: "Imagine these are two types of cells, or spam vs. normal emails.<br><br>Our task is to draw a line to separate red and blue dots.",
+                step0Hint: "Tip: Click 'Boundary' to see how.",
+                step1Title: "Infinite Possibilities",
+                step1Desc: `Any line separating the groups works. <br><br>But lines too close to points are risky. New points might be misclassified.`,
+                step1Hint: `Problem: Poor <span class="term-link font-bold underline decoration-dotted" onclick="showTerm('robustness')">Robustness (?)</span>.`,
+                step2Title: "Max Margin",
+                step2Desc: `SVM Magic: Find a path that is <b>as wide as possible</b> without touching dots.`,
+                step2List: `<li><span class="term-link" onclick="showTerm('hyperplane')">Hyperplane (?)</span>: The middle line.</li><li><span class="term-link" onclick="showTerm('margin')">Margin (?)</span>: Path width.</li><li><span class="term-link" onclick="showTerm('supportVectors')">Support Vectors (?)</span>: Key points supporting the edges.</li>`,
+                step2Hint: "Only Support Vectors matter!",
+                step3Title: "Manual SVM Challenge",
+                step3Desc: "Adjust sliders. Goal:<br>1. Separate red/blue.<br>2. Maximize the green width.",
+                slope: "Angle",
+                bias: "Position",
+                statusStep1: "General Boundary",
+                statusStep2: "Optimal Hyperplane",
+                statusStep3: "Manual Mode",
+                error: "⚠️ Collision! Overlap",
+                margin: "Margin: ",
+                feedbackSuccess: "✅ Separated! Margin: ",
+                feedbackFail: "⚠️ Collision! Can't separate",
+                feedbackOptimal: "🏆 Optimal Solution Found!"
+            }
+        };
+
+        let currentLang = 'zh';
+        let lastSeparatedState = false; 
+
+        // --- Terminology Popup Logic ---
+        function showTerm(termKey) {
+            const data = terms[currentLang][termKey];
+            document.getElementById('term-title').innerText = data.title;
+            document.getElementById('term-desc').innerText = data.desc;
+            const popup = document.getElementById('term-popup');
+            popup.classList.remove('hidden');
+        }
+
+        function hideTerm() {
+            document.getElementById('term-popup').classList.add('hidden');
+        }
+
+        function toggleLanguage() {
+            currentLang = currentLang === 'zh' ? 'en' : 'zh';
+            const btnText = document.getElementById('lang-text');
+            btnText.innerText = currentLang === 'zh' ? 'English' : '中文';
+            
+            applyLanguage();
+            if(currentStep === 3) manualUpdate();
+        }
+
+        function applyLanguage() {
+            document.querySelectorAll('[data-key]').forEach(el => {
+                const key = el.getAttribute('data-key');
+                if (i18n[currentLang][key]) {
+                    el.innerHTML = i18n[currentLang][key];
+                }
+            });
+            document.getElementById('intro-desc').innerHTML = i18n[currentLang].introDesc;
+            document.getElementById('step1-desc').innerHTML = i18n[currentLang].step1Desc;
+            document.getElementById('step2-desc').innerHTML = i18n[currentLang].step2Desc;
+            document.getElementById('step2-list').innerHTML = i18n[currentLang].step2List;
+            
+            updateStatusText();
+        }
+
+        function updateStatusText() {
+            const statusEl = document.getElementById('status-text');
+            if (currentStep === 0) statusEl.innerText = i18n[currentLang].statusReady;
+            else if (currentStep === 1) statusEl.innerText = i18n[currentLang].statusStep1;
+            else if (currentStep === 2) statusEl.innerText = i18n[currentLang].statusStep2;
+            else if (currentStep === 3) statusEl.innerText = i18n[currentLang].statusStep3;
+        }
+
+        // --- 2. Canvas & SVM Logic ---
+
+        const canvas = document.getElementById('svmCanvas');
+        const ctx = canvas.getContext('2d');
+        const container = document.getElementById('canvas-container');
+
+        let currentStep = 0;
+        let width, height;
+        let points = [];
+        const POINT_RADIUS = 7; 
+        
+        const rawDataA = [
+            {x: 0.2, y: 0.6}, {x: 0.3, y: 0.7}, {x: 0.1, y: 0.8}, 
+            {x: 0.4, y: 0.6}, {x: 0.25, y: 0.5}, {x: 0.15, y: 0.65}
+        ];
+        const rawDataB = [
+            {x: 0.7, y: 0.3}, {x: 0.8, y: 0.2}, {x: 0.6, y: 0.4}, 
+            {x: 0.75, y: 0.45}, {x: 0.9, y: 0.15}, {x: 0.65, y: 0.25}
+        ];
+
+        let animationFrame;
+        let targetAngle = -45;
+        let currentAngle = -45;
+        let targetBias = 0;
+        let currentBias = 0;
+        
+        // Updated constants for Centered Coordinates
+        // Optimal angle: 135 deg (approx diagonal separation)
+        // Optimal bias: 0 (since data is centered)
+        const OPTIMAL_ANGLE = 135;
+        const OPTIMAL_BIAS = 0;
+        
+        // Bad Angle: 110 deg
+        // Bad Bias: needs to be shifted to hit points. 
+        // Relative to center, maybe +120px
+        const BAD_ANGLE = 110;
+        const BAD_BIAS = 120;
+
+        function resize() {
+            width = container.clientWidth;
+            height = container.clientHeight;
+            const dpr = window.devicePixelRatio || 1;
+            canvas.width = width * dpr;
+            canvas.height = height * dpr;
+            ctx.scale(dpr, dpr);
+            mapPointsToScreen();
+            draw();
+        }
+
+        function mapPointsToScreen() {
+            points = [];
+            rawDataA.forEach(p => {
+                points.push({ x: p.x * width, y: (1 - p.y) * height, type: 'A' });
+            });
+            rawDataB.forEach(p => {
+                points.push({ x: p.x * width, y: (1 - p.y) * height, type: 'B' });
+            });
+        }
+
+        function getDist(px, py, angleDeg, bias) {
+            const rad = angleDeg * Math.PI / 180;
+            const nx = Math.sin(rad);
+            const ny = -Math.cos(rad);
+            
+            // KEY FIX: Use Center-Relative Coordinates
+            const dx = px - width / 2;
+            const dy = py - height / 2;
+            
+            return nx * dx + ny * dy + bias;
+        }
+
+        function drawGrid() {
+            ctx.strokeStyle = '#f1f5f9';
+            ctx.lineWidth = 1;
+            const step = 40;
+            ctx.beginPath();
+            for(let x=0; x<width; x+=step) { ctx.moveTo(x, 0); ctx.lineTo(x, height); }
+            for(let y=0; y<height; y+=step) { ctx.moveTo(0, y); ctx.lineTo(width, y); }
+            ctx.stroke();
+        }
+
+        function drawPoints(highlightSupportVectors = false, lineAngle = 0, lineBias = 0) {
+            let minDistA = Infinity;
+            let minDistB = Infinity;
+            
+            if (highlightSupportVectors) {
+                points.forEach(p => {
+                    const dist = getDist(p.x, p.y, lineAngle, lineBias);
+                    if (p.type === 'A') {
+                        if (dist > 0 && dist < minDistA) minDistA = dist;
+                        if (dist < 0 && -dist < minDistA) minDistA = -dist;
+                    } else {
+                        if (dist > 0 && dist < minDistB) minDistB = dist;
+                        if (dist < 0 && -dist < minDistB) minDistB = -dist;
                     }
                 });
+            }
 
-                animationFrameId = requestAnimationFrame(animate);
-            };
-
-            // Event Listeners
-            window.addEventListener("resize", () => {
-                w = canvas.width = window.innerWidth;
-                h = canvas.height = window.innerHeight;
-                initParticles();
+            points.forEach(p => {
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, POINT_RADIUS, 0, Math.PI * 2);
+                ctx.fillStyle = p.type === 'A' ? '#F43F5E' : '#3B82F6';
+                ctx.fill();
+                
+                if (highlightSupportVectors) {
+                    const dist = Math.abs(getDist(p.x, p.y, lineAngle, lineBias));
+                    const isSupportVector = 
+                        (p.type === 'A' && Math.abs(dist - minDistA) < 2) || 
+                        (p.type === 'B' && Math.abs(dist - minDistB) < 2);
+                    
+                    if (isSupportVector) {
+                        ctx.lineWidth = 2;
+                        ctx.strokeStyle = '#EAB308';
+                        ctx.stroke();
+                        ctx.beginPath();
+                        ctx.arc(p.x, p.y, POINT_RADIUS + 5, 0, Math.PI * 2);
+                        ctx.strokeStyle = 'rgba(234, 179, 8, 0.6)';
+                        ctx.stroke();
+                    }
+                }
             });
 
-            window.addEventListener("mousemove", (e) => {
-                mouse.x = e.clientX;
-                mouse.y = e.clientY;
+            return Math.min(minDistA, minDistB);
+        }
+
+        function drawSVM(angle, bias, showMargin = false) {
+            const rad = angle * Math.PI / 180;
+            const nx = Math.sin(rad);
+            const ny = -Math.cos(rad);
+            
+            // Draw hyperplane using CENTERED coordinates
+            // Formula: nx * (x - cx) + ny * (y - cy) + bias = 0
+            // y - cy = ( -bias - nx * (x - cx) ) / ny
+            // y = cy + ( -bias - nx * (x - cx) ) / ny
+            
+            const cx = width / 2;
+            const cy = height / 2;
+
+            ctx.beginPath();
+            
+            // Handle vertical line case (ny near 0)
+            if (Math.abs(ny) < 0.01) {
+                // nx * (x - cx) + bias = 0  => x = cx - bias/nx
+                const verticalX = cx - bias / nx;
+                ctx.moveTo(verticalX, 0);
+                ctx.lineTo(verticalX, height);
+            } else {
+                // Draw across a wide range to cover rotations
+                let started = false;
+                for(let x=-width; x<=width*2; x+=20) {
+                     const y = cy + ( -bias - nx * (x - cx) ) / ny;
+                    if(!started) { ctx.moveTo(x, y); started = true; }
+                    else { ctx.lineTo(x, y); }
+                }
+            }
+            
+            ctx.strokeStyle = '#475569';
+            ctx.lineWidth = 2;
+            ctx.setLineDash([]);
+            ctx.stroke();
+
+            if (showMargin) {
+                const margin = drawPoints(true, angle, bias);
+                
+                if (margin !== Infinity) {
+                    // Margin Lines
+                    ctx.beginPath();
+                    
+                    if (Math.abs(ny) < 0.01) {
+                         const vX1 = cx - (bias + margin) / nx;
+                         const vX2 = cx - (bias - margin) / nx;
+                         ctx.moveTo(vX1, 0); ctx.lineTo(vX1, height);
+                         ctx.moveTo(vX2, 0); ctx.lineTo(vX2, height); // Separate paths needed really but stroke handles MoveTo
+                    } else {
+                         // Line 1
+                        let started = false;
+                        for(let x=-width; x<=width*2; x+=20) {
+                            const y = cy + ( -(bias + margin) - nx * (x - cx) ) / ny;
+                            if(!started) { ctx.moveTo(x, y); started = true; }
+                            else { ctx.lineTo(x, y); }
+                        }
+                        // Line 2 (Start new sub-path implicitly by MoveTo in next loop? No, need to handle properly)
+                         // Actually canvas stroke() draws all subpaths.
+                        started = false; 
+                        // Note: The previous loop left the pen at last point. We need moveTo for second line.
+                        // My previous code relied on !started flag which resets for each loop if I did 2 loops.
+                        // Let's do 2 separate loops or set stroke twice? 
+                        // Easiest: ctx.stroke(); ctx.beginPath(); ...
+                    }
+                    ctx.strokeStyle = 'rgba(79, 70, 229, 0.4)';
+                    ctx.setLineDash([8, 6]);
+                    ctx.stroke();
+
+                    // Second margin line explicitly
+                    ctx.beginPath();
+                     if (Math.abs(ny) < 0.01) {
+                         const vX2 = cx - (bias - margin) / nx;
+                         ctx.moveTo(vX2, 0); ctx.lineTo(vX2, height);
+                     } else {
+                        let started = false;
+                        for(let x=-width; x<=width*2; x+=20) {
+                            const y = cy + ( -(bias - margin) - nx * (x - cx) ) / ny;
+                            if(!started) { ctx.moveTo(x, y); started = true; }
+                            else { ctx.lineTo(x, y); }
+                        }
+                     }
+                    ctx.stroke();
+
+                    // Score & Feedback Update
+                    if(currentStep === 3) {
+                        const signA = Math.sign(getDist(points[0].x, points[0].y, angle, bias));
+                        let separated = true;
+                        
+                        const firstBIndex = points.findIndex(p => p.type === 'B');
+                        const signB = Math.sign(getDist(points[firstBIndex].x, points[firstBIndex].y, angle, bias));
+
+                        points.forEach(p => {
+                            const d = getDist(p.x, p.y, angle, bias);
+                            if(p.type === 'A' && Math.sign(d) !== signA) separated = false;
+                            if(p.type === 'B' && Math.sign(d) !== signB) separated = false;
+                        });
+
+                        const scoreEl = document.getElementById('margin-score');
+                        const feedbackEl = document.getElementById('feedback-text');
+                        const feedbackBanner = document.getElementById('feedback-banner');
+
+                        // Haptic Feedback trigger
+                        if (separated !== lastSeparatedState) {
+                            if (window.navigator && window.navigator.vibrate) {
+                                window.navigator.vibrate(50); 
+                            }
+                            lastSeparatedState = separated;
+                        }
+
+                        if(!separated) {
+                            scoreEl.innerText = i18n[currentLang].error;
+                            scoreEl.className = "mt-4 text-center font-mono font-bold text-xl text-rose-500";
+                            
+                            feedbackEl.innerText = i18n[currentLang].feedbackFail;
+                            feedbackBanner.className = "absolute top-0 left-0 right-0 p-3 text-center text-sm font-bold transform transition-transform duration-300 z-20 bg-rose-500 text-white shadow-md";
+                            feedbackBanner.style.transform = "translateY(0)";
+                        } else {
+                            scoreEl.innerText = `${i18n[currentLang].margin}${margin.toFixed(1)}`;
+                            const intensity = Math.min(margin, 50) / 50; 
+                            scoreEl.style.color = `rgba(16, 185, 129, ${0.5 + intensity/2})`;
+                            scoreEl.className = "mt-4 text-center font-mono font-bold text-xl";
+                            
+                            feedbackEl.innerText = `${i18n[currentLang].feedbackSuccess}${margin.toFixed(1)}`;
+                            feedbackBanner.className = "absolute top-0 left-0 right-0 p-3 text-center text-sm font-bold transform transition-transform duration-300 z-20 bg-emerald-500 text-white shadow-md";
+                            feedbackBanner.style.transform = "translateY(0)";
+                        }
+                    } else {
+                         document.getElementById('feedback-banner').style.transform = "translateY(-100%)";
+                    }
+                }
+            } else {
+                drawPoints(false);
+                document.getElementById('feedback-banner').style.transform = "translateY(-100%)";
+            }
+        }
+
+        function draw() {
+            const dpr = window.devicePixelRatio || 1;
+            ctx.save();
+            ctx.setTransform(1, 0, 0, 1, 0, 0);
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.restore();
+
+            drawGrid();
+
+            if (currentStep !== 3) {
+                currentAngle = currentAngle + (targetAngle - currentAngle) * 0.1;
+                currentBias = currentBias + (targetBias - currentBias) * 0.1;
+            } else {
+                currentAngle = parseFloat(document.getElementById('angle-slider').value);
+                // No scaling for bias anymore, treat as direct pixels relative to center
+                currentBias = parseFloat(document.getElementById('bias-slider').value);
+            }
+
+            if (currentStep === 0) {
+                drawPoints(false);
+            } else if (currentStep === 1) {
+                drawSVM(currentAngle, currentBias, false);
+            } else if (currentStep === 2) {
+                drawSVM(currentAngle, currentBias, true);
+            } else if (currentStep === 3) {
+                drawSVM(currentAngle, currentBias, true);
+            }
+
+            animationFrame = requestAnimationFrame(draw);
+        }
+
+        // --- 3. Interaction ---
+
+        function setStep(step) {
+            currentStep = step;
+            updateStatusText();
+            
+            document.querySelectorAll('.step-btn').forEach(btn => {
+                const s = parseInt(btn.dataset.step);
+                if(s === step) {
+                    btn.classList.remove('text-slate-500', 'hover:bg-slate-100');
+                    btn.classList.add('bg-indigo-100', 'text-indigo-700', 'shadow-sm');
+                } else {
+                    btn.classList.add('text-slate-500', 'hover:bg-slate-100');
+                    btn.classList.remove('bg-indigo-100', 'text-indigo-700', 'shadow-sm');
+                }
             });
 
-            window.addEventListener("mouseleave", () => {
-                mouse.x = null;
-                mouse.y = null;
+            document.querySelectorAll('.step-content').forEach(el => {
+                el.style.opacity = '0';
+                el.style.pointerEvents = 'none';
+                el.classList.remove('fade-in');
             });
+            const activeContent = document.getElementById(`step-${step}`);
+            activeContent.style.opacity = '1';
+            activeContent.style.pointerEvents = 'auto';
+            activeContent.classList.add('fade-in');
 
-            // Start
-            initParticles();
-            animate();
-        })();
+             document.getElementById('feedback-banner').style.transform = "translateY(-100%)";
+
+            if (step === 0) {
+                // Just points
+            } else if (step === 1) {
+                targetAngle = BAD_ANGLE;
+                targetBias = BAD_BIAS;
+            } else if (step === 2) {
+                targetAngle = OPTIMAL_ANGLE;
+                targetBias = OPTIMAL_BIAS; 
+            } else if (step === 3) {
+                // Reset manual mode to a neutral but "unsolved" state
+                document.getElementById('angle-slider').value = 90; // Vertical
+                document.getElementById('bias-slider').value = 0;   // Centered
+                manualUpdate();
+            }
+        }
+
+        function manualUpdate() {
+            if(currentStep !== 3) return;
+            const angle = document.getElementById('angle-slider').value;
+            const bias = document.getElementById('bias-slider').value;
+            document.getElementById('angle-val').innerText = angle + "°";
+            document.getElementById('bias-val').innerText = bias;
+        }
+
+        window.addEventListener('resize', resize);
+        
+        applyLanguage();
+        resize(); 
+        draw(); 
+        
     </script>
-
-</body></html>
+</body>
+</html>
